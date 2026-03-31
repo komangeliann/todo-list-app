@@ -1,25 +1,38 @@
-# Modern To Do List App
+# To Do List App
 
-A modern and responsive To Do List web application built using HTML, CSS, and JavaScript.  
-This application allows users to manage daily tasks with a clean and modern UI.
+A modern and responsive To Do List web application built with HTML, CSS, and JavaScript.  
+This app allows users to manage tasks with priorities, due dates, progress tracking, and dark mode.
 
 ## Features
+
 - Add new task
-- Mark task as done
+- Edit task (name, due date, priority)
 - Delete task
-- Task filter (All / Active / Completed)
-- Task counter
+- Mark task as completed
+- Filter tasks (All / Active / Completed)
+- Task counter based on filter
+- Progress bar
+- Priority label (High / Medium / Low)
+- Due date with overdue warning
 - Dark mode
-- Local storage (data saved in browser)
-- Responsive design (Mobile & Desktop)
-- Modern glassmorphism UI
-- Smooth animation
+- Responsive design (Mobile & Tablet)
+- Smooth animations
+- Scrollable task list
+- LocalStorage (data saved in browser)
+- Glassmorphism UI design
+
+---
 
 ## Technologies Used
+
 - HTML
 - CSS
 - JavaScript
-- Local Storage
+- LocalStorage
+- Font Awesome Icons
+
+---
+
 
 ## Live Demo
 https://komangeliann.github.io/todo-list-app

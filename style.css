@@ -1,3 +1,5 @@
+/* === GLOBAL === */
+
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -8,13 +10,13 @@ body {
     align-items: center;
 }
 
-.dark {
-    background: #222;
-    color: white;
-}
+
+/* === CONTAINER === */
 
 .container {
-    width: 400px;
+    width: 600px;
+    max-height: 100vh;
+    overflow: hidden;
     padding: 25px;
     border-radius: 20px;
     background: rgba(255, 255, 255, 0.2);
@@ -27,6 +29,9 @@ h1 {
     text-align: center;
 }
 
+
+/* === INPUT AREA === */
+
 .input-section {
     display: flex;
     gap: 10px;
@@ -35,6 +40,12 @@ h1 {
 
 input {
     flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+}
+
+select {
     padding: 12px;
     border-radius: 10px;
     border: none;
@@ -54,6 +65,28 @@ button:hover {
     background: #ffffff55;
 }
 
+
+/* === PROGRESS BAR === */
+
+.progress-container {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: #2ecc71;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+
+/* === TASK LIST === */
+
 ul {
     list-style: none;
     padding: 0;
@@ -70,6 +103,128 @@ li {
     animation: fadeIn 0.3s ease;
 }
 
+.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.task-buttons button {
+    margin-left: 5px;
+}
+
+#taskCount {
+    padding-top: 10px;
+}
+
+
+/* === PRIORITY TAG === */
+
+.priority {
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.priority.high {
+    background: #e74c3c;
+}
+
+.priority.medium {
+    background: #f39c12;
+}
+
+.priority.low {
+    background: #2ecc71;
+}
+
+.overdue {
+    color: #ff6b6b;
+}
+
+
+/* === SCROLLBAR === */
+
+#taskList {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+    mask-image: linear-gradient(to bottom, black 90%, transparent);
+}
+
+#taskList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#taskList::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+
+#taskList::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.4);
+    border-radius: 10px;
+}
+
+#taskList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.6);
+}
+
+
+/* === MODAL === */
+
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    padding: 25px;
+    border-radius: 20px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    animation: modalFade 0.3s ease;
+}
+
+.modal-content input,
+.modal-content select {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    flex: 1;
+}
+
+#btnSave {
+    background-color: #4e8785;
+}
+
+
+/* === ANIMATIONS === */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -81,16 +236,56 @@ li {
     }
 }
 
-.completed {
-    text-decoration: line-through;
-    opacity: 0.6;
+@keyframes modalFade {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
-.task-buttons button {
-    margin-left: 5px;
+@keyframes modalClose {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
 }
 
-/* ========== TABLET ========== */
+.modal.closing .modal-content {
+    animation: modalClose 0.2s ease forwards;
+}
+
+
+/* === DARK MODE === */
+
+.dark {
+    background: #222;
+    color: white;
+}
+
+.dark .container {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dark li {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dark .modal-content {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+
+/* === RESPONSIVE === */
+
+/* Tablet */
 @media (max-width: 768px) {
     .container {
         width: 90%;
@@ -110,7 +305,8 @@ li {
     }
 }
 
-/* ========== MOBILE ========== */
+
+/* Mobile */
 @media (max-width: 480px) {
     body {
         align-items: flex-start;
