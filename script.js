@@ -2,7 +2,8 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let filter = "all";
 let editIndex = null;
-
+let dragStartIndex = null;
+let importedData = [];
 
 // LOCAL STORAGE
 function saveTasks() {
@@ -16,7 +17,10 @@ function addTask() {
     let dueDate = document.getElementById("dueDate");
     let priority = document.getElementById("priority");
 
-    if (input.value === "") return;
+    if (input.value === "") {
+        showToast("Task cannot be empty", "error");
+        return;
+    } 
 
     tasks.push({
         text: input.value,
@@ -30,6 +34,7 @@ function addTask() {
 
     saveTasks();
     showTasks();
+    showToast("Task added", "success");
 }
 
 
@@ -70,6 +75,14 @@ function showTasks() {
         let realIndex = tasks.indexOf(task);
 
         let li = document.createElement("li");
+        li.setAttribute("draggable", true);
+        li.dataset.index = realIndex;
+
+        // DRAG EVENTS
+        li.addEventListener("dragstart", handleDragStart);
+        li.addEventListener("dragover", handleDragOver);
+        li.addEventListener("drop", handleDrop);
+        li.addEventListener("dragend", handleDragEnd);
 
         if (task.priority === "High") li.classList.add("high");
         if (task.priority === "Medium") li.classList.add("medium");
@@ -121,18 +134,153 @@ function showTasks() {
     updateProgressBar();
 }
 
+// DRAG & DROP
+function handleDragStart(e) {
+    dragStartIndex = this.dataset.index;
+    this.classList.add("dragging");
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+}
+
+function handleDrop(e) {
+    let dragEndIndex = this.dataset.index;
+
+    if (dragStartIndex === dragEndIndex) return;
+
+    // SWAP POSITION
+    let temp = tasks[dragStartIndex];
+    tasks.splice(dragStartIndex, 1);
+    tasks.splice(dragEndIndex, 0, temp);
+
+    saveTasks();
+    showTasks();
+}
+
+function handleDragEnd() {
+    document.querySelectorAll("li").forEach(li =>
+        li.classList.remove("dragging")
+    );
+}
+
+// EXPORT
+function exportTasks() {
+    if (tasks.length === 0) {
+        showToast("No tasks to export", "error");
+        return;
+    }
+
+    let dataStr = JSON.stringify(tasks, null, 2);
+    
+    let blob = new Blob([dataStr], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    let date = new Date().toISOString().split("T")[0];
+    a.href = url;
+    a.download = `tasks-${date}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+// IMPORT
+function importTasks(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+
+    let reader = new FileReader();
+
+    reader.onload = function(e) {
+        try {
+            let data = JSON.parse(e.target.result);
+
+            if (!Array.isArray(data)) {
+                showToast("Invalid JSON format", "error");
+                return;
+            }
+
+            importedData = data;
+
+            // SHOW IMPORT MODAL
+            document.getElementById("importModal").style.display = "flex";
+
+        } catch (error) {
+            showToast("Error reading file", "error");
+        }
+    };
+
+    reader.readAsText(file);
+
+    event.target.value = "";
+}
+
+// CONFIRM IMPORT
+function confirmImport(type) {
+    if (type === "replace") {
+        tasks = importedData;
+    }
+
+    if (type === "merge") {
+        tasks = [...tasks, ...importedData];
+    }
+
+    saveTasks();
+    showTasks();
+    closeImportModal();
+    showToast("Tasks imported successfully", "success");
+}
+
+// CLOSE IMPORT MODAL
+function closeImportModal() {
+    let modal = document.getElementById("importModal");
+    
+    modal.classList.add("closing");
+
+    setTimeout(() => {
+        modal.style.display = "none";
+        modal.classList.remove("closing");
+        importedData = [];
+    }, 200);
+}
 
 // TASK ACTIONS 
 function toggleComplete(index) {
     tasks[index].completed = !tasks[index].completed;
     saveTasks();
     showTasks();
+    showToast("Task updated", "info");
 }
 
 function deleteTask(index) {
     tasks.splice(index, 1);
     saveTasks();
     showTasks();
+    showToast("Task deleted", "success");
+}
+
+// TOAST
+function showToast(message, type = "info") {
+    let container = document.getElementById("toastContainer");
+
+    let toast = document.createElement("div");
+    toast.classList.add("toast", type);
+
+    let icon = {
+        success: "✔",
+        error: "✖",
+        info: "ℹ"
+    };
+
+    toast.innerHTML = `<strong>${icon[type]}</strong> ${message}`;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = "toastOut 0.3s ease forwards";
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
 }
 
 
@@ -153,7 +301,7 @@ function saveEdit() {
     let newText = document.getElementById("editTaskInput").value;
 
     if (newText.trim() === "") {
-        alert("Task cannot be empty");
+        showToast("Task cannot be empty", "error");
         return;
     }
 
@@ -162,11 +310,12 @@ function saveEdit() {
     tasks[editIndex].priority = document.getElementById("editPriority").value;
 
     saveTasks();
-    closeModal();
+    closeEditModal();
     showTasks();
+    showToast("Task updated", "success");
 }
 
-function closeModal() {
+function closeEditModal() {
     let modal = document.getElementById("editModal");
 
     modal.classList.add("closing");
@@ -218,10 +367,11 @@ function toggleDarkMode() {
 
 // EVENTS
 window.onclick = function(event) {
-    let modal = document.getElementById("editModal");
-    if (event.target === modal) {
-        closeModal();
-    }
+    let editModal = document.getElementById("editModal");
+    let importModal = this.document.getElementById("importModal");
+
+    if (event.target === editModal) closeEditModal();
+    if (event.target === importModal) closeImportModal();
 };
 
 document.getElementById("editTaskInput").addEventListener("keypress", function(e) {

@@ -48,6 +48,11 @@
             <option value="date">Due Date</option>
             <option value="priority">Priority</option>
         </select>
+
+        <button onclick="exportTasks()">Export</button>
+        
+        <button onclick="document.getElementById('importFile').click()">Import</button>
+        <input type="file" id="importFile" accept=".json" onchange="importTasks(event)" hidden>
     </div>
 
     <!-- Progress Bar -->
@@ -79,10 +84,26 @@
 
         <div class="modal-buttons">
             <button onclick="saveEdit()" id="btnSave">Save</button>
-            <button onclick="closeModal()">Cancel</button>
+            <button onclick="closeEditModal()">Cancel</button>
         </div>
     </div>
 </div>
+
+<!-- IMPORT MODAL -->
+<div id="importModal" class="modal">
+    <div class="modal-content">
+        <h2>Import Tasks</h2>
+        <p>Do you want to replace existing tasks or merge them?</p>
+
+        <div class="modal-buttons">
+            <button onclick="confirmImport('replace')" id="btnReplace">Replace</button>
+            <button onclick="confirmImport('merge')" id="btnMerge">Merge</button>
+            <button onclick="closeImportModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer"></div>
 
 <!-- JS -->
 <script src="script.js"></script>
