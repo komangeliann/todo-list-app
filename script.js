@@ -38,9 +38,36 @@ function showTasks() {
     let list = document.getElementById("taskList");
     list.innerHTML = "";
 
-    tasks.forEach((task, index) => {
-        if (filter === "active" && task.completed) return;
-        if (filter === "completed" && !task.completed) return;
+    let searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
+    let sortOption = document.getElementById("sortOption")?.value;
+
+    let filteredTasks = [...tasks];
+
+    // FILTER (status)
+    filteredTasks = filteredTasks.filter(task => {
+        if (filter === "active") return !task.completed;
+        if (filter === "completed") return task.completed;
+        return true;
+    });
+
+    // SEARCH
+    filteredTasks = filteredTasks.filter(task =>
+        task.text.toLowerCase().includes(searchValue)
+    );
+
+    // SORT
+    if (sortOption === "date") {
+        filteredTasks.sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
+    }
+
+    if (sortOption === "priority") {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        filteredTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    }
+
+    // RENDER
+    filteredTasks.forEach((task, index) => {
+        let realIndex = tasks.indexOf(task);
 
         let li = document.createElement("li");
 
@@ -71,18 +98,18 @@ function showTasks() {
         if (!task.completed) {
             let doneBtn = document.createElement("button");
             doneBtn.innerHTML = '<i class="fa fa-check"></i>';
-            doneBtn.onclick = () => toggleComplete(index);
+            doneBtn.onclick = () => toggleComplete(realIndex);
             btnDiv.appendChild(doneBtn);
         }
 
         let editBtn = document.createElement("button");
         editBtn.innerHTML = '<i class="fa fa-pen"></i>';
-        editBtn.onclick = () => editTask(index);
+        editBtn.onclick = () => editTask(realIndex);
         btnDiv.appendChild(editBtn);
 
         let delBtn = document.createElement("button");
         delBtn.innerHTML = '<i class="fa fa-trash"></i>';
-        delBtn.onclick = () => deleteTask(index);
+        delBtn.onclick = () => deleteTask(realIndex);
         btnDiv.appendChild(delBtn);
 
         li.appendChild(span);

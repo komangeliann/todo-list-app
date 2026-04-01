@@ -1,7 +1,7 @@
 # To Do List App
 
-A modern and responsive To Do List web application built with HTML, CSS, and JavaScript.  
-This app allows users to manage tasks with priorities, due dates, progress tracking, and dark mode.
+A modern and responsive To Do List web application built using HTML, CSS, and JavaScript.  
+This app allows users to manage tasks with priorities, due dates, search, sorting, progress tracking, and dark mode.
 
 ## Features
 
@@ -10,6 +10,9 @@ This app allows users to manage tasks with priorities, due dates, progress track
 - Delete task
 - Mark task as completed
 - Filter tasks (All / Active / Completed)
+- Search task
+- Sort tasks by due date
+- Sort tasks by priority
 - Task counter based on filter
 - Progress bar
 - Priority label (High / Medium / Low)
@@ -33,6 +36,16 @@ This app allows users to manage tasks with priorities, due dates, progress track
 
 ---
 
+## How to Run
+1. Download or clone this repository
+2. Open the folder
+3. Open 'index.html' in browser
+
+Or using VS Code Live Server:
+- Right click 'index.html'
+- Open with Live Server
+
+---
 
 ## Live Demo
 https://komangeliann.github.io/todo-list-app
@@ -41,4 +54,4 @@ https://komangeliann.github.io/todo-list-app
 (Add screenshot here later)
 
 ## Author
-I Komang Elian Triananda Kusuma
+created by: I Komang Elian Triananda Kusuma
