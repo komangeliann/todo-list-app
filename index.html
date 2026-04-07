@@ -10,6 +10,7 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/847/847969.png">
 </head>
 <body>
 
@@ -22,20 +23,27 @@
         <input type="text" id="taskInput" placeholder="Add new task...">
         <input type="date" id="dueDate">
 
-        <select id="priority">
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-        </select>
+        <div class="custom-dropdown" id="priorityDropdown">
+            <div class="dropdown-selected">
+                Low
+                <i class="fa fa-chevron-down"></i>
+            </div>
+
+            <div class="dropdown-options">
+                <div data-value="High">High</div>
+                <div data-value="Medium">Medium</div>
+                <div data-value="Low">Low</span></div>
+            </div>
+        </div>
 
         <button onclick="addTask()">Add</button>
     </div>
 
     <!-- Filters -->
     <div class="filters">
-        <button onclick="filterTasks('all')">All</button>
-        <button onclick="filterTasks('active')">Active</button>
-        <button onclick="filterTasks('completed')">Completed</button>
+        <button onclick="filterTasks('all')" id="btnAll">All</button>
+        <button onclick="filterTasks('active')" id="btnActive">Active</button>
+        <button onclick="filterTasks('completed')" id="btnCompleted">Completed</button>
         <button onclick="toggleDarkMode()">Dark Mode</button>
     </div>
 
@@ -43,11 +51,18 @@
     <div class="tools">
         <input type="text" id="searchInput" placeholder="Search task..." oninput="showTasks()">
 
-        <select id="sortOption" onchange="showTasks()">
-            <option value="default">Sort By</option>
-            <option value="date">Due Date</option>
-            <option value="priority">Priority</option>
-        </select>
+        <div class="custom-dropdown" id="sortDropdown">
+            <div class="dropdown-selected">
+                Sort By
+                <i class="fa fa-chevron-down"></i>
+            </div>
+
+            <div class="dropdown-options">
+                <div data-value="default">Default</div>
+                <div data-value="date">Due Date</div>
+                <div data-value="priority">Priority</div>
+            </div>
+        </div>
 
         <button onclick="exportTasks()">Export</button>
         
@@ -76,11 +91,18 @@
         <input type="text" id="editTaskInput">
         <input type="date" id="editDueDate">
 
-        <select id="editPriority">
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-        </select>
+        <div class="custom-dropdown" id="editPriorityDropdown">
+            <div class="dropdown-selected">
+                Low
+                <i class="fa fa-chevron-down"></i>
+            </div>
+
+            <div class="dropdown-options">
+                <div data-value="Low">Low</div>
+                <div data-value="Medium">Medium</div>
+                <div data-value="High">High</div>
+            </div>
+        </div>
 
         <div class="modal-buttons">
             <button onclick="saveEdit()" id="btnSave">Save</button>

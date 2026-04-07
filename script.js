@@ -1,32 +1,89 @@
-// VARIABLES
+/* =========================
+    STATE
+========================= */
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let filter = "all";
 let editIndex = null;
 let dragStartIndex = null;
 let importedData = [];
 
-// LOCAL STORAGE
+let currentPriority = "Low";
+let currentSort = "default";
+let editPriorityValue = "Low";
+
+/* =========================
+    STORAGE
+========================= */
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+/* =========================
+    DROPDOWN HANDLER (REUSABLE)
+========================= */
+function initDropdown(dropdownId, onSelect) {
+    const dropdown = document.getElementById(dropdownId);
+    const selected = dropdown.querySelector(".dropdown-selected");
+    const options = dropdown.querySelectorAll(".dropdown-options div");
 
-// ADD TASK 
+    selected.addEventListener("click", () => {
+        dropdown.classList.toggle("active");
+    });
+
+    options.forEach(option => {
+        option.addEventListener("click", () => {
+            onSelect(option.dataset.value, option.innerText);
+
+            selected.innerHTML = `
+                ${option.innerText}
+                <i class="fa fa-chevron-down"></i>
+            `;
+
+            options.forEach(o => o.classList.remove("active"));
+            option.classList.add("active");
+
+            dropdown.classList.remove("active");
+        });
+    });
+
+    window.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("active");
+        }
+    });
+}
+
+// INIT DROPDOWNS
+initDropdown("sortDropdown", (value) => {
+    currentSort = value;
+    showTasks();
+});
+
+initDropdown("priorityDropdown", (value) => {
+    currentPriority = value;
+});
+
+initDropdown("editPriorityDropdown", (value) => {
+    editPriorityValue = value;
+});
+
+/* =========================
+    ADD TASK
+========================= */
 function addTask() {
-    let input = document.getElementById("taskInput");
-    let dueDate = document.getElementById("dueDate");
-    let priority = document.getElementById("priority");
+    const input = document.getElementById("taskInput");
+    const dueDate = document.getElementById("dueDate");
 
-    if (input.value === "") {
+    if (!input.value.trim()) {
         showToast("Task cannot be empty", "error");
         return;
-    } 
+    }
 
     tasks.push({
         text: input.value,
         completed: false,
         dueDate: dueDate.value,
-        priority: priority.value
+        priority: currentPriority
     });
 
     input.value = "";
@@ -37,45 +94,69 @@ function addTask() {
     showToast("Task added", "success");
 }
 
-
-// SHOW TASKS 
+/* =========================
+    RENDER TASKS
+========================= */
 function showTasks() {
-    let list = document.getElementById("taskList");
+    const list = document.getElementById("taskList");
     list.innerHTML = "";
 
     let searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
-    let sortOption = document.getElementById("sortOption")?.value;
 
-    let filteredTasks = [...tasks];
+    let filtered = [...tasks];
 
-    // FILTER (status)
-    filteredTasks = filteredTasks.filter(task => {
+    // FILTER
+    filtered = filtered.filter(task => {
         if (filter === "active") return !task.completed;
         if (filter === "completed") return task.completed;
         return true;
     });
 
     // SEARCH
-    filteredTasks = filteredTasks.filter(task =>
+    filtered = filtered.filter(task =>
         task.text.toLowerCase().includes(searchValue)
     );
 
     // SORT
-    if (sortOption === "date") {
-        filteredTasks.sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
+    if (currentSort === "date") {
+        filtered.sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
     }
 
-    if (sortOption === "priority") {
-        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
-        filteredTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    if (currentSort === "priority") {
+        const order = { High: 1, Medium: 2, Low: 3 };
+        filtered.sort((a, b) => order[a.priority] - order[b.priority]);
+    }
+
+    // EMPTY STATE
+    if (filtered.length === 0) {
+        if (filtered.length === 0) {
+            let message = "";
+
+            if (filter === "active") {
+                message = "You're all caught up!";
+            } else if (filter === "completed") {
+                message = "No task completed yet";
+            } else {
+                message = "No tasks found";
+            }
+
+            list.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa fa-check-circle"></i>
+                    <p>${message}</p>
+                </div>
+            `;
+            updateTaskCount(filtered);
+            return;
+        }
     }
 
     // RENDER
-    filteredTasks.forEach((task, index) => {
-        let realIndex = tasks.indexOf(task);
+    filtered.forEach(task => {
+        const realIndex = tasks.findIndex(t => t === task);
 
-        let li = document.createElement("li");
-        li.setAttribute("draggable", true);
+        const li = document.createElement("li");
+        li.draggable = true;
         li.dataset.index = realIndex;
 
         // DRAG EVENTS
@@ -84,59 +165,55 @@ function showTasks() {
         li.addEventListener("drop", handleDrop);
         li.addEventListener("dragend", handleDragEnd);
 
-        if (task.priority === "High") li.classList.add("high");
-        if (task.priority === "Medium") li.classList.add("medium");
-        if (task.priority === "Low") li.classList.add("low");
+        if (task.priority) li.classList.add(task.priority.toLowerCase());
 
-        let span = document.createElement("span");
+        const today = new Date().toISOString().split("T")[0];
+        const overdue = task.dueDate && task.dueDate < today ? "overdue" : "";
 
-        let today = new Date().toISOString().split("T")[0];
-        let dueColor = "";
-
-        if (task.dueDate && task.dueDate < today) {
-            dueColor = "overdue";
-        }
-
+        const span = document.createElement("span");
         span.innerHTML = `
             <strong>${task.text}</strong><br>
-            <small class="${dueColor}">Due: ${task.dueDate || "-"}</small>
+            <small class="${overdue}">Due: ${task.dueDate || "-"}</small>
             <span class="priority ${task.priority.toLowerCase()}">${task.priority}</span>
         `;
 
         if (task.completed) span.classList.add("completed");
 
-        let btnDiv = document.createElement("div");
-        btnDiv.classList.add("task-buttons");
+        const actions = document.createElement("div");
+        actions.classList.add("task-buttons");
 
         if (!task.completed) {
-            let doneBtn = document.createElement("button");
-            doneBtn.innerHTML = '<i class="fa fa-check"></i>';
-            doneBtn.onclick = () => toggleComplete(realIndex);
-            btnDiv.appendChild(doneBtn);
+            const doneBtn = createBtn("fa-check", () => toggleComplete(realIndex));
+            actions.appendChild(doneBtn);
         }
 
-        let editBtn = document.createElement("button");
-        editBtn.innerHTML = '<i class="fa fa-pen"></i>';
-        editBtn.onclick = () => editTask(realIndex);
-        btnDiv.appendChild(editBtn);
+        const editBtn = createBtn("fa-pen", () => editTask(realIndex));
+        const delBtn = createBtn("fa-trash", () => deleteTask(realIndex));
 
-        let delBtn = document.createElement("button");
-        delBtn.innerHTML = '<i class="fa fa-trash"></i>';
-        delBtn.onclick = () => deleteTask(realIndex);
-        btnDiv.appendChild(delBtn);
-
-        li.appendChild(span);
-        li.appendChild(btnDiv);
+        actions.append(editBtn, delBtn);
+        li.append(span, actions);
         list.appendChild(li);
     });
 
-    updateTaskCount();
+    updateTaskCount(filtered);
     updateProgressBar();
 }
 
-// DRAG & DROP
-function handleDragStart(e) {
-    dragStartIndex = this.dataset.index;
+/* =========================
+    BUTTON FACTORY
+========================= */
+function createBtn(icon, handler) {
+    const btn = document.createElement("button");
+    btn.innerHTML = `<i class="fa ${icon}"></i>`;
+    btn.onclick = handler;
+    return btn;
+}
+
+/* =========================
+    DRAG & DROP
+========================= */
+function handleDragStart() {
+    dragStartIndex = Number(this.dataset.index);
     this.classList.add("dragging");
 }
 
@@ -144,15 +221,13 @@ function handleDragOver(e) {
     e.preventDefault();
 }
 
-function handleDrop(e) {
-    let dragEndIndex = this.dataset.index;
+function handleDrop() {
+    const end = Number(this.dataset.index);
+    if (dragStartIndex === end) return;
 
-    if (dragStartIndex === dragEndIndex) return;
-
-    // SWAP POSITION
-    let temp = tasks[dragStartIndex];
+    const temp = tasks[dragStartIndex];
     tasks.splice(dragStartIndex, 1);
-    tasks.splice(dragEndIndex, 0, temp);
+    tasks.splice(end, 0, temp);
 
     saveTasks();
     showTasks();
@@ -164,133 +239,33 @@ function handleDragEnd() {
     );
 }
 
-// EXPORT
-function exportTasks() {
-    if (tasks.length === 0) {
-        showToast("No tasks to export", "error");
-        return;
-    }
-
-    let dataStr = JSON.stringify(tasks, null, 2);
-    
-    let blob = new Blob([dataStr], { type: "application/json" });
-    let url = URL.createObjectURL(blob);
-
-    let a = document.createElement("a");
-    let date = new Date().toISOString().split("T")[0];
-    a.href = url;
-    a.download = `tasks-${date}.json`;
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
-
-// IMPORT
-function importTasks(event) {
-    let file = event.target.files[0];
-    if (!file) return;
-
-    let reader = new FileReader();
-
-    reader.onload = function(e) {
-        try {
-            let data = JSON.parse(e.target.result);
-
-            if (!Array.isArray(data)) {
-                showToast("Invalid JSON format", "error");
-                return;
-            }
-
-            importedData = data;
-
-            // SHOW IMPORT MODAL
-            document.getElementById("importModal").style.display = "flex";
-
-        } catch (error) {
-            showToast("Error reading file", "error");
-        }
-    };
-
-    reader.readAsText(file);
-
-    event.target.value = "";
-}
-
-// CONFIRM IMPORT
-function confirmImport(type) {
-    if (type === "replace") {
-        tasks = importedData;
-    }
-
-    if (type === "merge") {
-        tasks = [...tasks, ...importedData];
-    }
-
-    saveTasks();
-    showTasks();
-    closeImportModal();
-    showToast("Tasks imported successfully", "success");
-}
-
-// CLOSE IMPORT MODAL
-function closeImportModal() {
-    let modal = document.getElementById("importModal");
-    
-    modal.classList.add("closing");
-
-    setTimeout(() => {
-        modal.style.display = "none";
-        modal.classList.remove("closing");
-        importedData = [];
-    }, 200);
-}
-
-// TASK ACTIONS 
-function toggleComplete(index) {
-    tasks[index].completed = !tasks[index].completed;
+/* =========================
+    TASK ACTIONS
+========================= */
+function toggleComplete(i) {
+    tasks[i].completed = !tasks[i].completed;
     saveTasks();
     showTasks();
     showToast("Task updated", "info");
 }
 
-function deleteTask(index) {
-    tasks.splice(index, 1);
+function deleteTask(i) {
+    tasks.splice(i, 1);
     saveTasks();
     showTasks();
     showToast("Task deleted", "success");
 }
 
-// TOAST
-function showToast(message, type = "info") {
-    let container = document.getElementById("toastContainer");
+/* =========================
+    EDIT
+========================= */
+function editTask(i) {
+    editIndex = i;
 
-    let toast = document.createElement("div");
-    toast.classList.add("toast", type);
+    document.getElementById("editTaskInput").value = tasks[i].text;
+    document.getElementById("editDueDate").value = tasks[i].dueDate;
 
-    let icon = {
-        success: "✔",
-        error: "✖",
-        info: "ℹ"
-    };
-
-    toast.innerHTML = `<strong>${icon[type]}</strong> ${message}`;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.animation = "toastOut 0.3s ease forwards";
-        setTimeout(() => toast.remove(), 300);
-    }, 2000);
-}
-
-
-// EDIT TASK 
-function editTask(index) {
-    editIndex = index;
-
-    document.getElementById("editTaskInput").value = tasks[index].text;
-    document.getElementById("editDueDate").value = tasks[index].dueDate;
-    document.getElementById("editPriority").value = tasks[index].priority;
+    editPriorityValue = tasks[i].priority;
 
     document.getElementById("editModal").style.display = "flex";
 }
@@ -298,16 +273,16 @@ function editTask(index) {
 function saveEdit() {
     if (editIndex === null) return;
 
-    let newText = document.getElementById("editTaskInput").value;
+    const text = document.getElementById("editTaskInput").value.trim();
 
-    if (newText.trim() === "") {
+    if (!text) {
         showToast("Task cannot be empty", "error");
         return;
     }
 
-    tasks[editIndex].text = newText;
+    tasks[editIndex].text = text;
     tasks[editIndex].dueDate = document.getElementById("editDueDate").value;
-    tasks[editIndex].priority = document.getElementById("editPriority").value;
+    tasks[editIndex].priority = editPriorityValue;
 
     saveTasks();
     closeEditModal();
@@ -316,70 +291,115 @@ function saveEdit() {
 }
 
 function closeEditModal() {
-    let modal = document.getElementById("editModal");
-
-    modal.classList.add("closing");
-
-    setTimeout(() => {
-        modal.style.display = "none";
-        modal.classList.remove("closing");
-        editIndex = null;
-    }, 200);
+    document.getElementById("editModal").style.display = "none";
+    editIndex = null;
 }
 
+/* =========================
+    IMPORT / EXPORT
+========================= */
+function exportTasks() {
+    if (!tasks.length) return showToast("No tasks to export", "error");
 
-// FILTER 
+    const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tasks.json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function importTasks(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (ev) => {
+        try {
+            const data = JSON.parse(ev.target.result);
+            if (!Array.isArray(data)) throw Error();
+
+            importedData = data;
+            document.getElementById("importModal").style.display = "flex";
+
+        } catch {
+            showToast("Invalid JSON", "error");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+function confirmImport(type) {
+    tasks = type === "replace" ? importedData : [...tasks, ...importedData];
+    saveTasks();
+    showTasks();
+    closeImportModal();
+}
+
+function closeImportModal() {
+    document.getElementById("importModal").style.display = "none";
+}
+
+/* =========================
+    FILTER & UI
+========================= */
 function filterTasks(type) {
     filter = type;
+
+    document.querySelectorAll(".filters button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById("btn" + capitalize(type)).classList.add("active");
+
     showTasks();
 }
 
-function updateTaskCount() {
-    let count = 0;
-
-    tasks.forEach(task => {
-        if (filter === "all") count++;
-        if (filter === "active" && !task.completed) count++;
-        if (filter === "completed" && task.completed) count++;
-    });
-
-    document.getElementById("taskCount").innerText =
-        `Showing ${count} ${filter} tasks`;
+function capitalize(str) {
+    return str[0].toUpperCase() + str.slice(1);
 }
 
+function updateTaskCount(filteredTasks) {
+    let label = filter === "all" ? "" : filter + " ";
 
-// PROGRESS BAR 
+    document.getElementById("taskCount").innerText =
+        `Showing ${filteredTasks.length} ${label}tasks`;
+}
+
 function updateProgressBar() {
-    let completed = tasks.filter(t => t.completed).length;
-    let total = tasks.length;
-
-    let percent = total === 0 ? 0 : (completed / total) * 100;
+    const done = tasks.filter(t => t.completed).length;
+    const percent = tasks.length ? (done / tasks.length) * 100 : 0;
 
     document.getElementById("progressBar").style.width = percent + "%";
 }
 
+/* =========================
+    TOAST
+========================= */
+function showToast(msg, type = "info") {
+    const container = document.getElementById("toastContainer");
 
-// DARK MODE
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `${msg}`;
+
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 2000);
+}
+
+/* =========================
+    DARK MODE
+========================= */
 function toggleDarkMode() {
     document.body.classList.toggle("dark");
 }
 
-
-// EVENTS
-window.onclick = function(event) {
-    let editModal = document.getElementById("editModal");
-    let importModal = this.document.getElementById("importModal");
-
-    if (event.target === editModal) closeEditModal();
-    if (event.target === importModal) closeImportModal();
-};
-
-document.getElementById("editTaskInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        saveEdit();
-    }
-});
-
-
-// INIT 
+/* =========================
+    INIT
+========================= */
 showTasks();

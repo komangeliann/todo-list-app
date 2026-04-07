@@ -1,128 +1,146 @@
-# To Do List App
+# 📝 To Do List App
 
-A modern and responsive To Do List web application built using **HTML, CSS, and JavaScript**.
-This app features a clean **glassmorphism UI**, smooth animations, and advanced task management capabilities such as search, sorting, drag & drop, and JSON import/export.
-
----
-
-## 🚀 Live Demo
-
-*(Add your deployed link here after using Vercel / Netlify)*
+A modern and interactive **To Do List Web App** built with pure **HTML, CSS, and JavaScript**.
+Designed with a **glassmorphism UI**, smooth animations, and advanced features to deliver a premium user experience.
 
 ---
 
 ## ✨ Features
 
-### 📝 Task Management
+### 📌 Task Management
 
-* Add new task
-* Edit task (name, due date, priority)
-* Delete task
-* Mark task as completed
+* Add, edit, delete tasks
+* Mark tasks as completed
+* Due date support
+* Priority levels (High / Medium / Low)
 
 ### 🔍 Productivity Tools
 
-* Filter tasks (All / Active / Completed)
-* Search task in real-time
-* Sort tasks by:
-  * Due date
+* Search tasks in real-time
+* Filter (All / Active / Completed)
+* Sort by:
+  * Due Date
   * Priority
-
-### ⚡ Advanced Features
-
-* Drag & Drop task reordering
-* Progress bar tracking completion
-* Task counter based on filter
-* Due date with overdue indicator
-
-### 💾 Data Management
-
-* Save tasks using LocalStorage
-* Export tasks to JSON
-* Import tasks from JSON (Replace / Merge via modal)
+* Progress bar (task completion)
 
 ### 🎨 UI / UX
 
 * Glassmorphism design
-* Dark mode support
-* Smooth animations & transitions
-* Toast notification system (success, error, info)
-* Scrollable task list
-* Fully responsive (mobile & tablet)
+* Dark mode toggle
+* Smooth animations & micro-interactions
+* Responsive (mobile & desktop)
+* Custom dropdown (no default select)
+
+### ⚡ Advanced Features
+
+* Drag & Drop reordering
+* Export tasks to JSON
+* Import tasks (Replace / Merge)
+* Toast notifications (glass style)
+* Empty state UI (dynamic based on filter)
 
 ---
 
-## 🛠️ Technologies Used
+## 🖼️ Preview
+
+### Main UI
+![Main](assets/main.png)
+
+### Edit Modal
+![Edit](assets/edit.png)
+
+### Dark Mode
+![Dark](assets/dark.png)
+
+---
+
+## 🛠️ Tech Stack
 
 * HTML5
-* CSS3 (Glassmorphism, Flexbox, Responsive Design)
-* JavaScript (Vanilla JS)
-* LocalStorage API
-* Font Awesome Icons
+* CSS3 (Glassmorphism + Animation)
+* Vanilla JavaScript (No Framework)
+* Local Storage API
 
 ---
 
-## 📁 Project Structure
+## 📂 Project Structure
 
 ```
-todo-list-app
+todo-list-app/
 │
+├── assets/
+│   └── preview.png
 ├── index.html
 ├── style.css
 ├── script.js
-├── README.md
+└── README.md
 ```
 
 ---
 
-## ⚙️ How to Run
+## 🚀 How to Run
 
-1. Clone or download this repository
-2. Open the folder
-3. Run `index.html` in your browser
+1. Download / clone this repository
+2. Open `index.html` in your browser
 
-### Using VS Code:
-
-* Right click `index.html`
-* Select **Open with Live Server**
+No installation needed ✅
 
 ---
 
-## 📸 Screenshots
+## 💾 Data Storage
 
-| Light Mode            | Dark Mode             |
-| --------------------- | --------------------- |
-| (Add screenshot here) | (Add screenshot here) |
+* Uses **Local Storage**
+* Data persists automatically in browser
+* No backend required
 
 ---
 
-## 📈 Future Improvements
+## 📦 Export / Import
 
-* Drag & Drop animation enhancement
-* Empty state illustration (No tasks)
-* Backend integration (Node.js / Laravel)
-* Database sync (Firebase / Supabase)
-* User authentication (login system)
-* Cloud sync across devices
-* Deploy with custom domain
+### Export
+
+* Download tasks as `.json`
+
+### Import
+
+* Upload `.json` file
+* Choose:
+
+  * Replace existing tasks
+  * Merge with current tasks
+
+---
+
+## 🎯 Key Highlights
+
+* Clean and structured code
+* Reusable components (dropdown, toast)
+* Smooth UX with micro-interactions
+* Fully client-side (fast & lightweight)
 
 ---
 
 ## 👨‍💻 Author
 
-Created by: **I Komang Elian Triananda Kusuma**
+**I Komang Elian Triananda Kusuma**
+
+* Full Stack Developer
 
 ---
 
 ## ⭐ Notes
 
-This project is built as part of a **full stack developer portfolio** to demonstrate:
+This project is part of my portfolio to showcase:
 
-* Clean UI/UX design
-* State management using JavaScript
-* Interactive features without frameworks
-* Real-world app structure
+* Frontend engineering skills
+* UI/UX design thinking
+* Clean code structure
 
 ---
 
-⭐ If you like this project, consider giving it a star!
+## 🔥 Final Result
+
+A **premium-looking, feature-rich To Do App**
+built without any framework — optimized for performance and simplicity.
+
+---
