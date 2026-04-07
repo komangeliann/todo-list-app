@@ -85,7 +85,12 @@ todo-list-app/
 
 No installation needed ✅
 
+* Live demo link:
+https://komangeliann.github.io/todo-list-app/
+
 ---
+
+
 
 ## 💾 Data Storage
 
@@ -123,8 +128,6 @@ No installation needed ✅
 ## 👨‍💻 Author
 
 **I Komang Elian Triananda Kusuma**
-
-* Full Stack Developer
 
 ---
 
